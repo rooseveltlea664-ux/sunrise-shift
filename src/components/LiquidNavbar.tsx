@@ -22,7 +22,7 @@ export const LiquidNavbar: React.FC<Props> = ({
           <h1 className="text-2xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">{currentMonthText}</h1>
         </div>
 
-        <div className="flex items-center gap-1 bg-white/95 dark:bg-zinc-800/95 p-1 rounded-full border border-gray-200/50 dark:border-zinc-700/50 shadow-sm">
+        <div className="flex items-center gap-1 bg-white/60 dark:bg-zinc-800/60 backdrop-blur-md p-1 rounded-full border border-gray-200/50 dark:border-zinc-700/50 shadow-sm" style={{ transform: 'translateZ(0)' }}>
           <motion.button
             whileTap={{ scale: 0.85 }}
             transition={{ type: 'spring', bounce: 0, duration: 0.3 }}
