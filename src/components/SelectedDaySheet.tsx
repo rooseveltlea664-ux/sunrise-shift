@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion } from 'framer-motion';
 import { DayScheduleRecord, ShiftDefinition, TaskItem } from '../types/shift';
 import { Briefcase, MessageSquare, Bell, Plus, Heart } from 'lucide-react';
 
@@ -65,7 +66,13 @@ export const SelectedDaySheet: React.FC<Props> = ({
   };
 
   return (
-    <div className="mt-2.5 liquid-card rounded-3xl p-3.5 shadow-lg motion-drawer space-y-2.5">
+    <motion.div 
+      key={dateStr}
+      initial={{ opacity: 0, y: 15 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ type: 'spring', bounce: 0, duration: 0.4 }}
+      className="mt-2.5 liquid-card rounded-3xl p-3.5 shadow-lg space-y-2.5"
+    >
       {/* 头部标题与闹钟联动 */}
       <div className="flex items-center justify-between pb-2 border-b border-gray-100">
         <div>
@@ -167,6 +174,6 @@ export const SelectedDaySheet: React.FC<Props> = ({
           />
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };

@@ -23,6 +23,7 @@
     "@capacitor/share": "^6.0.4",
     "@supabase/supabase-js": "^2.117.3",
     "canvas-confetti": "^1.9.3",
+    "framer-motion": "^14.0.0",
     "html2canvas": "^1.4.1",
     "ics": "^3.12.1",
     "isomorphic-git": "^1.43.1",

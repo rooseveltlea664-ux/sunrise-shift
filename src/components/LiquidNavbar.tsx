@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 import { Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface Props {
@@ -22,24 +23,30 @@ export const LiquidNavbar: React.FC<Props> = ({
         </div>
 
         <div className="flex items-center gap-1 bg-white/60 dark:bg-zinc-800/60 backdrop-blur-md p-1 rounded-full border border-gray-200/50 dark:border-zinc-700/50 shadow-sm">
-          <button
+          <motion.button
+            whileTap={{ scale: 0.85 }}
+            transition={{ type: 'spring', bounce: 0, duration: 0.3 }}
             onClick={onPrevMonth}
-            className="p-1 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-300 transition-colors motion-press"
+            className="p-1 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-300 transition-colors"
           >
             <ChevronLeft className="size-4" />
-          </button>
-          <button
+          </motion.button>
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            transition={{ type: 'spring', bounce: 0, duration: 0.3 }}
             onClick={onToday}
-            className="px-2 py-0.5 text-xs font-semibold rounded-full bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 shadow-sm motion-press"
+            className="px-2 py-0.5 text-xs font-semibold rounded-full bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 shadow-sm"
           >
             今天
-          </button>
-          <button
+          </motion.button>
+          <motion.button
+            whileTap={{ scale: 0.85 }}
+            transition={{ type: 'spring', bounce: 0, duration: 0.3 }}
             onClick={onNextMonth}
-            className="p-1 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-300 transition-colors motion-press"
+            className="p-1 rounded-full hover:bg-zinc-100 dark:hover:bg-zinc-700 text-zinc-600 dark:text-zinc-300 transition-colors"
           >
             <ChevronRight className="size-4" />
-          </button>
+          </motion.button>
         </div>
       </div>
     </header>

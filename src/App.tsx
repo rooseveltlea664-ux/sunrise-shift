@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
   ShiftDefinition,
   DayScheduleRecord,
@@ -375,159 +376,177 @@ export const App: React.FC = () => {
 
         {/* 核心主展示区：纯净专注的单一大月历 + 当日深度抽屉 */}
         <div className="flex-1 px-4 overflow-y-auto relative z-10 pb-32">
-          {activeTab === 'calendar' && (
-            <div className="space-y-2.5">
-              {/* 1. 经典 68px 标准黄金比例 31 天整月大网格 */}
-              <CalendarGrid
-                year={currentYear}
-                month={currentMonth}
-                selectedDate={selectedDate}
-                onSelectDate={setSelectedDate}
-                schedules={schedules}
-                shiftsMap={shiftsMap}
-                perspective={perspective}
-                displayStyle={displayStyle}
-                onDisplayStyleChange={handleDisplayStyleChange}
-                userNames={userNames}
-              />
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 10, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -10, scale: 0.98 }}
+              transition={{ duration: 0.3, type: 'spring', bounce: 0 }}
+            >
+              {activeTab === 'calendar' && (
+                <div className="space-y-2.5">
+                  {/* 1. 经典 68px 标准黄金比例 31 天整月大网格 */}
+                  <CalendarGrid
+                    year={currentYear}
+                    month={currentMonth}
+                    selectedDate={selectedDate}
+                    onSelectDate={setSelectedDate}
+                    schedules={schedules}
+                    shiftsMap={shiftsMap}
+                    perspective={perspective}
+                    displayStyle={displayStyle}
+                    onDisplayStyleChange={handleDisplayStyleChange}
+                    userNames={userNames}
+                  />
 
-              {/* 2. 选中日期详情抽屉：整合个人专属工作待办清单、双人便签、动态闹钟 */}
-              <SelectedDaySheet
-                dateStr={selectedDate}
-                record={schedules[selectedDate]}
-                shiftsMap={shiftsMap}
-                onUpdateRecord={handleUpdateRecord}
-                userNames={userNames}
-              />
+                  {/* 2. 选中日期详情抽屉：整合个人专属工作待办清单、双人便签、动态闹钟 */}
+                  <SelectedDaySheet
+                    dateStr={selectedDate}
+                    record={schedules[selectedDate]}
+                    shiftsMap={shiftsMap}
+                    onUpdateRecord={handleUpdateRecord}
+                    userNames={userNames}
+                  />
 
-              {/* 3. 全月双人考勤与津贴协同速报 */}
-              <FullMonthOverview
-                year={currentYear}
-                month={currentMonth}
-                schedules={schedules}
-                shiftsMap={shiftsMap}
-                userNames={userNames}
-              />
-            </div>
-          )}
-
-          {/* Tab 2: 自定义班次库 + 自由组合轮班 */}
-          {activeTab === 'cycle' && (
-            <div className="space-y-3">
-              <div className="liquid-card rounded-3xl p-4 shadow-lg flex items-center justify-between">
-                <div>
-                  <div className="flex items-center gap-1.5 text-xs font-bold text-gray-900">
-                    <Palette className="w-4 h-4 text-sunrise-500" />
-                    <span>自定义班次设计管理</span>
-                  </div>
-                  <p className="text-[10px] text-gray-500 mt-0.5">
-                    添加/修改早中夜班、副岗，设置时段、跨天与津贴 (当前共 {shifts.length} 个)
-                  </p>
+                  {/* 3. 全月双人考勤与津贴协同速报 */}
+                  <FullMonthOverview
+                    year={currentYear}
+                    month={currentMonth}
+                    schedules={schedules}
+                    shiftsMap={shiftsMap}
+                    userNames={userNames}
+                  />
                 </div>
-                <button
-                  onClick={() => setIsShiftDesignerOpen(true)}
-                  className="px-3 py-1.5 bg-black text-white text-[11px] rounded-xl font-bold motion-press"
-                >
-                  管理班次
-                </button>
-              </div>
+              )}
 
-              <div className="liquid-card rounded-3xl p-4 shadow-lg text-center">
-                <Repeat className="w-8 h-8 text-sunrise-500 mx-auto mb-2" />
-                <h3 className="text-sm font-bold text-gray-900">自由组合轮班生成器</h3>
-                <p className="text-[11px] text-gray-500 mt-1 mb-3">
-                  为双方自由编排专属轮班序列（如两早两夜两休等），自动联动法定节假日
-                </p>
-                <button
-                  onClick={() => setIsCycleModalOpen(true)}
-                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-sunrise-500 to-sunrise-600 text-white text-xs font-bold shadow-lg motion-press"
-                >
-                  进入自由轮班设计器
-                </button>
-              </div>
-            </div>
-          )}
+              {/* Tab 2: 自定义班次库 + 自由组合轮班 */}
+              {activeTab === 'cycle' && (
+                <div className="space-y-3">
+                  <div className="liquid-card rounded-3xl p-4 shadow-lg flex items-center justify-between">
+                    <div>
+                      <div className="flex items-center gap-1.5 text-xs font-bold text-gray-900">
+                        <Palette className="w-4 h-4 text-sunrise-500" />
+                        <span>自定义班次设计管理</span>
+                      </div>
+                      <p className="text-[10px] text-gray-500 mt-0.5">
+                        添加/修改早中夜班、副岗，设置时段、跨天与津贴 (当前共 {shifts.length} 个)
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => setIsShiftDesignerOpen(true)}
+                      className="px-3 py-1.5 bg-black text-white text-[11px] rounded-xl font-bold motion-press"
+                    >
+                      管理班次
+                    </button>
+                  </div>
 
-          {activeTab === 'analytics' && (
-            <AnalyticsDashboard
-              year={currentYear}
-              month={currentMonth}
-              schedules={schedules}
-              shiftsMap={shiftsMap}
-              userNames={userNames}
-            />
-          )}
+                  <div className="liquid-card rounded-3xl p-4 shadow-lg text-center">
+                    <Repeat className="w-8 h-8 text-sunrise-500 mx-auto mb-2" />
+                    <h3 className="text-sm font-bold text-gray-900">自由组合轮班生成器</h3>
+                    <p className="text-[11px] text-gray-500 mt-1 mb-3">
+                      为双方自由编排专属轮班序列（如两早两夜两休等），自动联动法定节假日
+                    </p>
+                    <button
+                      onClick={() => setIsCycleModalOpen(true)}
+                      className="px-4 py-2 rounded-xl bg-gradient-to-r from-sunrise-500 to-sunrise-600 text-white text-xs font-bold shadow-lg motion-press"
+                    >
+                      进入自由轮班设计器
+                    </button>
+                  </div>
+                </div>
+              )}
 
-          {activeTab === 'settings' && (
-            <WidgetsAndSettings
-              currentFont={font}
-              onFontChange={setFont}
-              bgOpacity={bgOpacity}
-              onBgOpacityChange={setBgOpacity}
-              bgBlur={bgBlur}
-              onBgBlurChange={setBgBlur}
-              onUploadWallpaper={handleUploadWallpaper}
-              displayStyle={displayStyle}
-              onDisplayStyleChange={handleDisplayStyleChange}
-              userNames={userNames}
-              onUserNamesChange={handleUserNamesChange}
-              onOpenAlarmModal={() => setIsAlarmModalOpen(true)}
-              themeMode={themeMode}
-              onThemeModeChange={setThemeMode}
-              onCloudDataReceived={(cloudSchedules, cloudShifts) => {
-                if (cloudSchedules) {
-                  setSchedules(cloudSchedules);
-                  saveSchedules(cloudSchedules);
-                }
-                if (cloudShifts) {
-                  setShifts(cloudShifts);
-                  saveShifts(cloudShifts);
-                }
-              }}
-            />
-          )}
+              {activeTab === 'analytics' && (
+                <AnalyticsDashboard
+                  year={currentYear}
+                  month={currentMonth}
+                  schedules={schedules}
+                  shiftsMap={shiftsMap}
+                  userNames={userNames}
+                />
+              )}
+
+              {activeTab === 'settings' && (
+                <WidgetsAndSettings
+                  currentFont={font}
+                  onFontChange={setFont}
+                  bgOpacity={bgOpacity}
+                  onBgOpacityChange={setBgOpacity}
+                  bgBlur={bgBlur}
+                  onBgBlurChange={setBgBlur}
+                  onUploadWallpaper={handleUploadWallpaper}
+                  displayStyle={displayStyle}
+                  onDisplayStyleChange={handleDisplayStyleChange}
+                  userNames={userNames}
+                  onUserNamesChange={handleUserNamesChange}
+                  onOpenAlarmModal={() => setIsAlarmModalOpen(true)}
+                  themeMode={themeMode}
+                  onThemeModeChange={setThemeMode}
+                  onCloudDataReceived={(cloudSchedules, cloudShifts) => {
+                    if (cloudSchedules) {
+                      setSchedules(cloudSchedules);
+                      saveSchedules(cloudSchedules);
+                    }
+                    if (cloudShifts) {
+                      setShifts(cloudShifts);
+                      saveShifts(cloudShifts);
+                    }
+                  }}
+                />
+              )}
+            </motion.div>
+          </AnimatePresence>
         </div>
 
         {/* 底部悬浮底栏 */}
         <footer className={`fixed bottom-0 left-0 right-0 p-3 z-50 pointer-events-none transition-opacity duration-200 ${isKeyboardVisible ? 'opacity-0 pointer-events-none hidden' : 'opacity-100'}`}>
           <nav className="pointer-events-auto bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md p-1.5 rounded-full border border-gray-200/50 dark:border-zinc-800/50 shadow-sm">
             <div className="grid grid-cols-4 gap-1 text-center">
-              <button
+              <motion.button
                 onClick={() => setActiveTab('calendar')}
-                className={`flex flex-col items-center gap-1 py-2 rounded-full motion-press transition-colors ${
+                whileTap={{ scale: 0.85 }}
+                transition={{ type: 'spring', bounce: 0, duration: 0.3 }}
+                className={`flex flex-col items-center gap-1 py-2 rounded-full transition-colors ${
                   activeTab === 'calendar' ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-50 font-medium' : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-300'
                 }`}
               >
                 <Calendar className="size-5" />
                 <span className="text-[10px]">日历</span>
-              </button>
-              <button
+              </motion.button>
+              <motion.button
                 onClick={() => setActiveTab('cycle')}
-                className={`flex flex-col items-center gap-1 py-2 rounded-full motion-press transition-colors ${
+                whileTap={{ scale: 0.85 }}
+                transition={{ type: 'spring', bounce: 0, duration: 0.3 }}
+                className={`flex flex-col items-center gap-1 py-2 rounded-full transition-colors ${
                   activeTab === 'cycle' ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-50 font-medium' : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-300'
                 }`}
               >
                 <Repeat className="size-5" />
                 <span className="text-[10px]">轮班</span>
-              </button>
-              <button
+              </motion.button>
+              <motion.button
                 onClick={() => setActiveTab('analytics')}
-                className={`flex flex-col items-center gap-1 py-2 rounded-full motion-press transition-colors ${
+                whileTap={{ scale: 0.85 }}
+                transition={{ type: 'spring', bounce: 0, duration: 0.3 }}
+                className={`flex flex-col items-center gap-1 py-2 rounded-full transition-colors ${
                   activeTab === 'analytics' ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-50 font-medium' : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-300'
                 }`}
               >
                 <BarChart2 className="size-5" />
                 <span className="text-[10px]">统计</span>
-              </button>
-              <button
+              </motion.button>
+              <motion.button
                 onClick={() => setActiveTab('settings')}
-                className={`flex flex-col items-center gap-1 py-2 rounded-full motion-press transition-colors ${
+                whileTap={{ scale: 0.85 }}
+                transition={{ type: 'spring', bounce: 0, duration: 0.3 }}
+                className={`flex flex-col items-center gap-1 py-2 rounded-full transition-colors ${
                   activeTab === 'settings' ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-900 dark:text-zinc-50 font-medium' : 'text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-300'
                 }`}
               >
                 <Settings className="size-5" />
                 <span className="text-[10px]">设置</span>
-              </button>
+              </motion.button>
             </div>
           </nav>
           <div className="w-32 h-1 bg-white/40 rounded-full mx-auto mt-2 mb-1"></div>

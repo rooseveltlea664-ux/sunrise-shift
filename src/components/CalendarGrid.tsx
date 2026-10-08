@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ShiftDefinition, DayScheduleRecord, ViewPerspective, CalendarDisplayStyle } from '../types/shift';
 import { getHolidayInfo } from '../services/holidayService';
 import { LayoutGrid, Layers, Columns2, Sparkles, CircleDot } from 'lucide-react';
@@ -68,7 +69,15 @@ export const CalendarGrid: React.FC<Props> = ({
       </div>
 
       {/* 48px 标准单元格网格 */}
-      <div className="grid grid-cols-7 gap-1 text-center text-xs">
+      <AnimatePresence mode="wait">
+        <motion.div 
+          key={`${year}-${month}`}
+          initial={{ opacity: 0, scale: 0.98, y: 5 }}
+          animate={{ opacity: 1, scale: 1, y: 0 }}
+          exit={{ opacity: 0, scale: 0.98, y: -5 }}
+          transition={{ duration: 0.3, type: 'spring', bounce: 0 }}
+          className="grid grid-cols-7 gap-1 text-center text-xs"
+        >
         {days.map((item, idx) => {
           const holiday = getHolidayInfo(item.dateStr);
           const record = schedules[item.dateStr];
@@ -106,10 +115,12 @@ export const CalendarGrid: React.FC<Props> = ({
           }
 
           return (
-            <div
+            <motion.div
               key={idx}
               onClick={() => onSelectDate(item.dateStr)}
-              className={`cal-cell rounded-xl cursor-pointer motion-press motion-fade-spring transition-all ${
+              whileTap={{ scale: 0.95 }}
+              transition={{ type: 'spring', bounce: 0, duration: 0.3 }}
+              className={`cal-cell rounded-xl cursor-pointer ${
                 isTogetherRest
                   ? 'border-2 border-rose-400 bg-together-bg motion-halo-active'
                   : 'cal-cell-bg border border-gray-100'
@@ -231,10 +242,11 @@ export const CalendarGrid: React.FC<Props> = ({
                   )}
                 </div>
               )}
-            </div>
+            </motion.div>
           );
         })}
-      </div>
+        </motion.div>
+      </AnimatePresence>
     </div>
   );
 };
