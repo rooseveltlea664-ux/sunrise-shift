@@ -31,25 +31,17 @@
 }
 
 .cal-cell-bg {
-  background-color: rgba(255, 255, 255, var(--card-bg-opacity, 0.94));
-  backdrop-filter: blur(var(--card-blur, 16px));
-  -webkit-backdrop-filter: blur(var(--card-blur, 16px));
+  /* Dynamic styles injected via App.tsx <style> tag */
 }
 html.dark .cal-cell-bg {
-  background-color: rgba(24, 24, 27, var(--card-bg-opacity, 0.94));
-  backdrop-filter: blur(var(--card-blur, 16px));
-  -webkit-backdrop-filter: blur(var(--card-blur, 16px));
+  /* Dynamic styles injected via App.tsx <style> tag */
 }
 
 .liquid-card {
-  background-color: rgba(255, 255, 255, var(--card-bg-opacity, 0.94));
-  backdrop-filter: blur(var(--card-blur, 16px));
-  -webkit-backdrop-filter: blur(var(--card-blur, 16px));
+  /* Dynamic styles injected via App.tsx <style> tag */
 }
 html.dark .liquid-card {
-  background-color: rgba(24, 24, 27, var(--card-bg-opacity, 0.94));
-  backdrop-filter: blur(var(--card-blur, 16px));
-  -webkit-backdrop-filter: blur(var(--card-blur, 16px));
+  /* Dynamic styles injected via App.tsx <style> tag */
 }
 
 html.dark body {

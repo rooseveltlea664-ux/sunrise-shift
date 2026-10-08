@@ -347,13 +347,17 @@ export const App: React.FC = () => {
   }
 
   return (
-    <div
-      className={`h-full w-full flex flex-col ${fontClassMap[font]}`}
-      style={{
-        ['--card-bg-opacity' as any]: bgOpacity / 100,
-        ['--card-blur' as any]: `${bgBlur}px`,
-      }}
-    >
+    <div className={`h-full w-full flex flex-col ${fontClassMap[font]}`}>
+      <style>{`
+        .cal-cell-bg, .liquid-card, .glass-nav {
+          backdrop-filter: blur(${bgBlur}px) !important;
+          -webkit-backdrop-filter: blur(${bgBlur}px) !important;
+          background-color: rgba(255, 255, 255, ${bgOpacity / 100}) !important;
+        }
+        html.dark .cal-cell-bg, html.dark .liquid-card, html.dark .glass-nav {
+          background-color: rgba(24, 24, 27, ${bgOpacity / 100}) !important;
+        }
+      `}</style>
       {/* 绝对固定、不受键盘挤压影响的沉浸式全局壁纸层 */}
       <div
         className="fixed top-0 left-0 bg-cover bg-center z-0 transition-opacity duration-700 pointer-events-none"
@@ -512,7 +516,7 @@ export const App: React.FC = () => {
 
         {/* 底部悬浮底栏 */}
         <footer className={`fixed bottom-0 left-0 right-0 p-3 z-50 pointer-events-none transition-opacity duration-200 ${isKeyboardVisible ? 'opacity-0 pointer-events-none hidden' : 'opacity-100'}`}>
-          <nav className="pointer-events-auto bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md p-1.5 rounded-full border border-gray-200/50 dark:border-zinc-800/50 shadow-sm" style={{ transform: 'translateZ(0)' }}>
+          <nav className="glass-nav pointer-events-auto p-1.5 rounded-full border border-gray-200/50 dark:border-zinc-800/50 shadow-sm" style={{ transform: 'translateZ(0)', willChange: 'transform' }}>
             <div className="grid grid-cols-4 gap-1 text-center">
               <motion.button
                 onClick={() => setActiveTab('calendar')}
