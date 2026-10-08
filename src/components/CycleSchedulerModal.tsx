@@ -131,15 +131,16 @@ export const CycleSchedulerModal: React.FC<Props> = ({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.3, ease: 'easeOut' }}
-            className="absolute inset-0 bg-black/60 backdrop-blur-md"
+            transition={{ duration: 0.2, ease: 'easeOut' }}
+            className="absolute inset-0 bg-black/70"
             onClick={onClose}
           />
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 15 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 15 }}
-            transition={{ duration: 0.4, type: 'spring', bounce: 0 }}
+            transition={{ duration: 0.25, ease: 'easeOut' }}
+            style={{ willChange: 'transform, opacity' }}
             className="w-full max-w-sm liquid-card rounded-3xl p-5 shadow-2xl relative max-h-[92vh] flex flex-col z-10"
           >
             <motion.button
@@ -176,7 +177,8 @@ export const CycleSchedulerModal: React.FC<Props> = ({
                   key={tmpl.id} 
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.3, delay: idx * 0.05 }}
+                  transition={{ duration: 0.2, ease: 'easeOut', delay: idx * 0.04 }}
+                  style={{ willChange: 'transform, opacity' }}
                   className="flex items-center rounded-lg border border-gray-200 bg-white overflow-hidden shadow-sm group"
                 >
                   <button

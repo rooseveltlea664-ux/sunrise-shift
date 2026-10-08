@@ -45,15 +45,16 @@ export const AlarmSettingsModal: React.FC<Props> = ({ isOpen, onClose, shifts, u
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.3, ease: 'easeOut' }}
-            className="absolute inset-0 bg-black/60 backdrop-blur-md"
+            transition={{ duration: 0.2, ease: 'easeOut' }}
+            className="absolute inset-0 bg-black/70"
             onClick={onClose}
           />
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 15 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 15 }}
-            transition={{ duration: 0.4, type: 'spring', bounce: 0 }}
+            transition={{ duration: 0.25, ease: 'easeOut' }}
+            style={{ willChange: 'transform, opacity' }}
             className="w-full max-w-sm liquid-card rounded-3xl p-5 shadow-2xl relative max-h-[92vh] flex flex-col z-10"
           >
             <motion.button
