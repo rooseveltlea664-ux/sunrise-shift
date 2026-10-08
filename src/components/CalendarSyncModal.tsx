@@ -29,9 +29,8 @@ export const CalendarSyncModal: React.FC<Props> = ({ isOpen, onClose, userNames,
   // early return removed for AnimatePresence
 
   const handleSync = async () => {
-    setIsSyncing(true);
-    
     if (syncMode === 'export') {
+      setIsSyncing(true);
       try {
         const events: ics.EventAttributes[] = [];
         
@@ -62,9 +61,14 @@ export const CalendarSyncModal: React.FC<Props> = ({ isOpen, onClose, userNames,
             }
           }
 
+          // 正确处理跨月/跨年的结束日期
+          const startDate = new Date(yyyy, mm - 1, dd);
+          const endDate = new Date(startDate);
+          endDate.setDate(startDate.getDate() + 1);
+
           events.push({
-            start: [yyyy, mm, dd],
-            end: [yyyy, mm, dd + 1],
+            start: [startDate.getFullYear(), startDate.getMonth() + 1, startDate.getDate()],
+            end: [endDate.getFullYear(), endDate.getMonth() + 1, endDate.getDate()],
             title: `[排班] ${titleParts.join(' | ')}`,
             description,
             status: 'CONFIRMED',
@@ -129,7 +133,7 @@ export const CalendarSyncModal: React.FC<Props> = ({ isOpen, onClose, userNames,
       input.onchange = async (e: any) => {
         const file = e.target.files?.[0];
         if (!file) return;
-        setIsSyncing(true);
+        setIsSyncing(true); // 只有选中文件后才开启 loading
         try {
           const text = await file.text();
           // parse simple summary/dtstart just to show we processed it
