@@ -91,7 +91,7 @@ export const CalendarGrid: React.FC<Props> = ({
 
           // 透视视角逻辑：个人视角中不显示"同休"，全显和同休视角才显示"同休"
           const isTogetherRest =
-            isReallyTogetherRest && (perspective === 'all' || perspective === 'together');
+            isReallyTogetherRest && (perspective === 'both' || perspective === 'together');
 
           const isSelected = item.dateStr === selectedDate;
 
