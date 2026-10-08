@@ -162,13 +162,9 @@ export const ShiftDesignerModal: React.FC<Props> = ({
               </button>
             </div>
 
-            {shifts.map((s, idx) => (
-              <motion.div
+            {shifts.map((s) => (
+              <div
                 key={s.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.25, ease: 'easeOut', delay: idx * 0.04 }}
-                style={{ willChange: 'transform, opacity' }}
                 className="p-2.5 rounded-2xl bg-white/80 border border-gray-200 flex items-center justify-between shadow-sm"
               >
                 <div className="flex items-center gap-2">
@@ -201,7 +197,7 @@ export const ShiftDesignerModal: React.FC<Props> = ({
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
                 </div>
-              </motion.div>
+              </div>
             ))}
           </div>
         )}

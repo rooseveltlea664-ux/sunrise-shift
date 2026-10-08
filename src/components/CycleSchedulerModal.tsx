@@ -172,13 +172,9 @@ export const CycleSchedulerModal: React.FC<Props> = ({
               </button>
             </div>
             <div className="grid grid-cols-1 gap-1.5 text-[10px]">
-              {templates.map((tmpl, idx) => (
-                <motion.div 
+              {templates.map((tmpl) => (
+                <div 
                   key={tmpl.id} 
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.2, ease: 'easeOut', delay: idx * 0.04 }}
-                  style={{ willChange: 'transform, opacity' }}
                   className="flex items-center rounded-lg border border-gray-200 bg-white overflow-hidden shadow-sm group"
                 >
                   <button
@@ -203,7 +199,7 @@ export const CycleSchedulerModal: React.FC<Props> = ({
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
-                </motion.div>
+                </div>
               ))}
             </div>
           </div>

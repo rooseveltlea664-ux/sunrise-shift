@@ -507,7 +507,7 @@ export const App: React.FC = () => {
 
         {/* 底部悬浮底栏 */}
         <footer className={`fixed bottom-0 left-0 right-0 p-3 z-50 pointer-events-none transition-opacity duration-200 ${isKeyboardVisible ? 'opacity-0 pointer-events-none hidden' : 'opacity-100'}`}>
-          <nav className="pointer-events-auto bg-white/90 dark:bg-zinc-900/90 backdrop-blur-md p-1.5 rounded-full border border-gray-200/50 dark:border-zinc-800/50 shadow-sm">
+          <nav className="pointer-events-auto bg-white/95 dark:bg-zinc-900/95 p-1.5 rounded-full border border-gray-200/50 dark:border-zinc-800/50 shadow-md">
             <div className="grid grid-cols-4 gap-1 text-center">
               <motion.button
                 onClick={() => setActiveTab('calendar')}
