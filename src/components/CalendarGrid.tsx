@@ -7,6 +7,7 @@ import { LayoutGrid, Layers, Columns2, Sparkles, CircleDot } from 'lucide-react'
 interface Props {
   year: number;
   month: number; // 1-12
+  monthDirection: number; // 1 for next, -1 for prev, 0 for initial
   selectedDate: string;
   onSelectDate: (dateStr: string) => void;
   schedules: Record<string, DayScheduleRecord>;
@@ -20,6 +21,7 @@ interface Props {
 export const CalendarGrid: React.FC<Props> = ({
   year,
   month,
+  monthDirection,
   selectedDate,
   onSelectDate,
   schedules,
@@ -69,13 +71,13 @@ export const CalendarGrid: React.FC<Props> = ({
       </div>
 
       {/* 48px 标准单元格网格 */}
-      <AnimatePresence mode="wait">
+      <AnimatePresence mode="wait" initial={false}>
         <motion.div 
           key={`${year}-${month}`}
-          initial={{ opacity: 0, scale: 0.98, y: 5 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.98, y: -5 }}
-          transition={{ duration: 0.3, type: 'spring', bounce: 0 }}
+          initial={{ opacity: 0, scale: 0.95, x: monthDirection * 40 }}
+          animate={{ opacity: 1, scale: 1, x: 0 }}
+          exit={{ opacity: 0, scale: 0.95, x: -monthDirection * 40 }}
+          transition={{ duration: 0.35, type: 'spring', bounce: 0 }}
           className="grid grid-cols-7 gap-1 text-center text-xs"
         >
         {days.map((item, idx) => {

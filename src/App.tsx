@@ -52,6 +52,7 @@ export const App: React.FC = () => {
 
   const [currentYear, setCurrentYear] = useState(initYear);
   const [currentMonth, setCurrentMonth] = useState(initMonth);
+  const [monthDirection, setMonthDirection] = useState(0);
   const [schedules, setSchedules] = useState<Record<string, DayScheduleRecord>>({});
   const [selectedDate, setSelectedDate] = useState(initDateStr);
   const [perspective, setPerspective] = useState<ViewPerspective>('both');
@@ -301,6 +302,7 @@ export const App: React.FC = () => {
   };
 
   const handlePrevMonth = () => {
+    setMonthDirection(-1);
     if (currentMonth === 1) {
       setCurrentMonth(12);
       setCurrentYear(currentYear - 1);
@@ -310,6 +312,7 @@ export const App: React.FC = () => {
   };
 
   const handleNextMonth = () => {
+    setMonthDirection(1);
     if (currentMonth === 12) {
       setCurrentMonth(1);
       setCurrentYear(currentYear + 1);
@@ -319,6 +322,7 @@ export const App: React.FC = () => {
   };
 
   const handleToday = () => {
+    setMonthDirection(0);
     const t = new Date();
     setCurrentYear(t.getFullYear());
     setCurrentMonth(t.getMonth() + 1);
@@ -379,9 +383,9 @@ export const App: React.FC = () => {
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTab}
-              initial={{ opacity: 0, y: 10, scale: 0.98 }}
+              initial={{ opacity: 0, y: 20, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -10, scale: 0.98 }}
+              exit={{ opacity: 0, y: -20, scale: 0.95 }}
               transition={{ duration: 0.3, type: 'spring', bounce: 0 }}
             >
               {activeTab === 'calendar' && (
@@ -390,6 +394,7 @@ export const App: React.FC = () => {
                   <CalendarGrid
                     year={currentYear}
                     month={currentMonth}
+                    monthDirection={monthDirection}
                     selectedDate={selectedDate}
                     onSelectDate={setSelectedDate}
                     schedules={schedules}

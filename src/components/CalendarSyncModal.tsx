@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { X, Calendar, CheckSquare, RefreshCw, Smartphone, ListTodo } from 'lucide-react';
 
 import { ShiftDefinition, DayScheduleRecord } from '../types/shift';
@@ -25,7 +26,7 @@ export const CalendarSyncModal: React.FC<Props> = ({ isOpen, onClose, userNames,
   const [exportFormat, setExportFormat] = useState<'event' | 'reminder'>('event');
   const [isSyncing, setIsSyncing] = useState(false);
 
-  if (!isOpen) return null;
+  // early return removed for AnimatePresence
 
   const handleSync = async () => {
     setIsSyncing(true);
@@ -130,14 +131,31 @@ export const CalendarSyncModal: React.FC<Props> = ({ isOpen, onClose, userNames,
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-black/60 backdrop-blur-md">
-      <div className="w-full max-w-sm liquid-card rounded-3xl p-5 shadow-2xl relative motion-scale-spring">
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 w-7 h-7 rounded-full bg-black/5 hover:bg-black/10 flex items-center justify-center motion-press"
-        >
-          <X className="w-4 h-4 text-gray-700" />
-        </button>
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3, ease: 'easeOut' }}
+            className="absolute inset-0 bg-black/60 backdrop-blur-md"
+            onClick={onClose}
+          />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 15 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 15 }}
+            transition={{ duration: 0.4, type: 'spring', bounce: 0 }}
+            className="w-full max-w-sm liquid-card rounded-3xl p-5 shadow-2xl relative z-10"
+          >
+            <motion.button
+              whileTap={{ scale: 0.85 }}
+              onClick={onClose}
+              className="absolute top-4 right-4 w-7 h-7 rounded-full bg-black/5 hover:bg-black/10 flex items-center justify-center"
+            >
+              <X className="w-4 h-4 text-gray-700" />
+            </motion.button>
 
         <h3 className="text-base font-bold text-gray-900 mb-4 flex items-center gap-1.5">
           <RefreshCw className="w-5 h-5 text-blue-500" />
@@ -258,7 +276,9 @@ export const CalendarSyncModal: React.FC<Props> = ({ isOpen, onClose, userNames,
             <span>{isSyncing ? '正在与底层通讯中...' : syncMode === 'export' ? '确认写入系统' : '立即拉取系统数据'}</span>
           </button>
         </div>
-      </div>
+      </motion.div>
     </div>
+  )}
+</AnimatePresence>
   );
 };

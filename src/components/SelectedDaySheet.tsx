@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { DayScheduleRecord, ShiftDefinition, TaskItem } from '../types/shift';
 import { Briefcase, MessageSquare, Bell, Plus, Heart } from 'lucide-react';
 
@@ -68,7 +68,7 @@ export const SelectedDaySheet: React.FC<Props> = ({
   return (
     <motion.div 
       key={dateStr}
-      initial={{ opacity: 0, y: 15 }}
+      initial={{ opacity: 0, y: 40 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ type: 'spring', bounce: 0, duration: 0.4 }}
       className="mt-2.5 liquid-card rounded-3xl p-3.5 shadow-lg space-y-2.5"
@@ -115,28 +115,36 @@ export const SelectedDaySheet: React.FC<Props> = ({
           </span>
         </div>
 
-        <div className="flex flex-col gap-1 text-[11px]">
-          {currentRecord.personalNotes.map(task => (
-            <label
-              key={task.id}
-              className="flex items-center gap-1.5 text-gray-800 cursor-pointer motion-press"
-            >
-              <input
-                type="checkbox"
-                checked={task.completed}
-                onChange={() => handleToggleTask(task.id)}
-                className="rounded text-sunrise-500 accent-sunrise-500"
-              />
-              <span
-                className={`transition-all duration-300 ${
-                  task.completed ? 'line-through text-gray-400' : 'font-medium text-gray-700'
-                }`}
+          <div className="flex flex-col gap-1 text-[11px]">
+            <AnimatePresence initial={false}>
+            {currentRecord.personalNotes.map(task => (
+              <motion.label
+                key={task.id}
+                layout
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                whileTap={{ scale: 0.98 }}
+                transition={{ duration: 0.2 }}
+                className="flex items-center gap-1.5 text-gray-800 cursor-pointer overflow-hidden"
               >
-                {task.text}
-              </span>
-            </label>
-          ))}
-        </div>
+                <input
+                  type="checkbox"
+                  checked={task.completed}
+                  onChange={() => handleToggleTask(task.id)}
+                  className="rounded text-sunrise-500 accent-sunrise-500"
+                />
+                <span
+                  className={`transition-all duration-300 ${
+                    task.completed ? 'line-through text-gray-400' : 'font-medium text-gray-700'
+                  }`}
+                >
+                  {task.text}
+                </span>
+              </motion.label>
+            ))}
+            </AnimatePresence>
+          </div>
 
         <div className="mt-2 flex items-center gap-1">
           <input

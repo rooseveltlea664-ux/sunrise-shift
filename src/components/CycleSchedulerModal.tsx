@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { ShiftDefinition, DayScheduleRecord } from '../types/shift';
 import { PRESET_TEMPLATES, generateScheduleRange } from '../services/schedulerEngine';
 import { loadTemplates, saveTemplates } from '../services/storageService';
@@ -47,8 +48,6 @@ export const CycleSchedulerModal: React.FC<Props> = ({
   const [editingTemplateId, setEditingTemplateId] = useState<string | null>(null);
   const [applyToA, setApplyToA] = useState(true);
   const [applyToB, setApplyToB] = useState(true);
-
-  if (!isOpen) return null;
 
   const currentSeq = activePartnerTab === 'A' ? seqA : seqB;
   const setCurrentSeq = activePartnerTab === 'A' ? setSeqA : setSeqB;
@@ -107,7 +106,6 @@ export const CycleSchedulerModal: React.FC<Props> = ({
     setCurrentSeq(next);
   };
 
-
   const handleGenerate = () => {
     if (!applyToA && !applyToB) {
       alert('请至少选择一个要覆盖的对象！');
@@ -126,14 +124,31 @@ export const CycleSchedulerModal: React.FC<Props> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 bg-black/60 backdrop-blur-md">
-      <div className="w-full max-w-sm liquid-card rounded-3xl p-5 shadow-2xl relative max-h-[92vh] flex flex-col motion-drawer">
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 w-7 h-7 rounded-full bg-black/5 hover:bg-black/10 flex items-center justify-center motion-press"
-        >
-          <X className="w-4 h-4 text-gray-700" />
-        </button>
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.3, ease: 'easeOut' }}
+            className="absolute inset-0 bg-black/60 backdrop-blur-md"
+            onClick={onClose}
+          />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 15 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 15 }}
+            transition={{ duration: 0.4, type: 'spring', bounce: 0 }}
+            className="w-full max-w-sm liquid-card rounded-3xl p-5 shadow-2xl relative max-h-[92vh] flex flex-col z-10"
+          >
+            <motion.button
+              whileTap={{ scale: 0.85 }}
+              onClick={onClose}
+              className="absolute top-4 right-4 w-7 h-7 rounded-full bg-black/5 hover:bg-black/10 flex items-center justify-center"
+            >
+              <X className="w-4 h-4 text-gray-700" />
+            </motion.button>
 
         <h3 className="text-base font-bold text-gray-900 mb-0.5 flex items-center gap-1.5">
           <Calendar className="w-4 h-4 text-sunrise-500" />
@@ -156,8 +171,14 @@ export const CycleSchedulerModal: React.FC<Props> = ({
               </button>
             </div>
             <div className="grid grid-cols-1 gap-1.5 text-[10px]">
-              {templates.map((tmpl) => (
-                <div key={tmpl.id} className="flex items-center rounded-lg border border-gray-200 bg-white overflow-hidden shadow-sm motion-press group">
+              {templates.map((tmpl, idx) => (
+                <motion.div 
+                  key={tmpl.id} 
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.3, delay: idx * 0.05 }}
+                  className="flex items-center rounded-lg border border-gray-200 bg-white overflow-hidden shadow-sm group"
+                >
                   <button
                     type="button"
                     onClick={() => handleApplyTemplate(tmpl)}
@@ -180,7 +201,7 @@ export const CycleSchedulerModal: React.FC<Props> = ({
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
-                </div>
+                </motion.div>
               ))}
             </div>
           </div>
@@ -341,7 +362,9 @@ export const CycleSchedulerModal: React.FC<Props> = ({
             <span>应用自定义序列并生成排班</span>
           </button>
         </div>
-      </div>
-    </div>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
   );
 };
