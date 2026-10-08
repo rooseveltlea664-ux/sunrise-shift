@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>日出排班 Sunrise Shift - 单人/双人/同休过滤与个人工作备注</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&family=Noto+Sans+SC:wght@400;500;700&family=Noto+Serif+SC:wght@400;600;700&family=LXGW+WenKai+Screen&family=ZCOOL+KuaiLe&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+  
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            sunrise: {
+              50: '#FFF7ED',
+              100: '#FFEDD5',
+              500: '#EA580C',
+              badge: '#FFEDE0',
+              text: '#9A3412',
+            },
+            tealpartner: {
+              50: '#F0FDFA',
+              100: '#CCFBF1',
+              500: '#0D9488',
+              badge: '#E0F8F5',
+              text: '#115E59',
+            },
+            together: {
+              bg: '#FFF1F2',
+              border: '#FFE4E6',
+              text: '#BE123C',
+            },
+            holiday: {
+              restBg: '#FEF2F2',
+              restText: '#DC2626',
+              workBg: '#F3F4F6',
+              workText: '#4B5563'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    * { -webkit-tap-highlight-color: transparent; }
+    .spring-trans { transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); }
+    
+    .font-sans-modern { font-family: 'Plus Jakarta Sans', 'Noto Sans SC', sans-serif; }
+    .font-wenkai { font-family: 'LXGW WenKai Screen', 'Noto Sans SC', sans-serif; }
+    .font-serif-elegant { font-family: 'Noto Serif SC', serif; }
+    .font-cute-round { font-family: 'ZCOOL KuaiLe', 'Noto Sans SC', cursive, sans-serif; }
+    .font-mono-tech { font-family: 'JetBrains Mono', 'Noto Sans SC', monospace; }
+
+    :root {
+      --card-bg-opacity: 0.94;
+      --card-blur: 16px;
+      --card-border-opacity: 0.15;
+    }
+
+    .custom-card {
+      background-color: rgba(255, 255, 255, var(--card-bg-opacity));
+      backdrop-filter: blur(var(--card-blur));
+      -webkit-backdrop-filter: blur(var(--card-blur));
+      border: 1px solid rgba(220, 220, 220, var(--card-border-opacity));
+    }
+
+    /* 经典黄金日历比例单元格 */
+    .cal-cell {
+      height: 48px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 2px 3px;
+    }
+  </style>
+</head>
+<body class="bg-[#232426] text-[#1E1E1E] antialiased min-h-screen flex flex-col justify-center items-center py-6 px-3 font-sans-modern" id="appBody">
+
+  <!-- 顶部控制台 -->
+  <aside class="w-full max-w-[420px] mb-3 bg-white/95 rounded-2xl p-3.5 shadow-xl border border-gray-200 text-xs backdrop-blur-md">
+    <div class="flex items-center justify-between font-bold text-gray-800 pb-2 border-b border-gray-100">
+      <span class="flex items-center gap-1.5">
+        <svg class="w-4 h-4 text-sunrise-500" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"/></svg>
+        外观与交互实验室
+      </span>
+      <span class="text-[10px] text-gray-400 font-mono">新功能已装载</span>
+    </div>
+
+    <!-- 1. 字体选择切换 -->
+    <div class="mt-2">
+      <label class="font-semibold text-gray-700 text-[11px] block mb-1">切换全局字体：</label>
+      <div class="grid grid-cols-5 gap-1">
+        <button onclick="setFont('font-sans-modern')" class="font-btn px-1 py-1 rounded border bg-black text-white text-[10px] font-sans-modern text-center font-medium">无衬线</button>
+        <button onclick="setFont('font-wenkai')" class="font-btn px-1 py-1 rounded border bg-gray-50 hover:bg-gray-100 text-gray-700 text-[10px] font-wenkai text-center font-medium">霞鹜文楷</button>
+        <button onclick="setFont('font-serif-elegant')" class="font-btn px-1 py-1 rounded border bg-gray-50 hover:bg-gray-100 text-gray-700 text-[10px] font-serif-elegant text-center font-medium">典雅宋体</button>
+        <button onclick="setFont('font-cute-round')" class="font-btn px-1 py-1 rounded border bg-gray-50 hover:bg-gray-100 text-gray-700 text-[10px] font-cute-round text-center font-medium">治愈圆体</button>
+        <button onclick="setFont('font-mono-tech')" class="font-btn px-1 py-1 rounded border bg-gray-50 hover:bg-gray-100 text-gray-700 text-[10px] font-mono-tech text-center font-medium">极客等宽</button>
+      </div>
+    </div>
+
+    <!-- 2. 背景壁纸切换与透明度 -->
+    <div class="mt-2.5 grid grid-cols-2 gap-3 pt-2 border-t border-gray-100">
+      <div>
+        <div class="flex justify-between text-[10px] text-gray-600 mb-0.5">
+          <span>卡片不透明度:</span>
+          <span id="opacityVal" class="font-mono font-bold text-sunrise-500">94%</span>
+        </div>
+        <input type="range" min="30" max="100" value="94" class="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-sunrise-500" oninput="changeOpacity(this.value)">
+      </div>
+      <div>
+        <div class="flex justify-between text-[10px] text-gray-600 mb-0.5">
+          <span>毛玻璃虚化度:</span>
+          <span id="blurVal" class="font-mono font-bold text-tealpartner-500">16px</span>
+        </div>
+        <input type="range" min="0" max="30" value="16" class="w-full h-1 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-tealpartner-500" oninput="changeBlur(this.value)">
+      </div>
+    </div>
+  </aside>
+
+  <!-- 手机外壳容器（机模视口） -->
+  <div id="phoneDevice" class="w-full max-w-[420px] rounded-[44px] shadow-[0_25px_60px_-15px_rgba(0,0,0,0.5)] border-[6px] border-[#18181A] overflow-hidden flex flex-col min-h-[920px] relative select-none bg-cover bg-center spring-trans"
+       style="background-image: url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80');">
+    
+    <div id="ambientOverlay" class="absolute inset-0 bg-black/15 pointer-events-none spring-trans"></div>
+
+    <!-- 顶部状态栏 -->
+    <div class="pt-3 px-7 pb-1.5 flex justify-between items-center text-[12px] font-mono tracking-tight text-white drop-shadow relative z-10">
+      <span class="font-semibold">09:41</span>
+      <div class="h-4 w-24 bg-black/80 backdrop-blur rounded-full mx-auto"></div>
+      <div class="flex items-center gap-1.5 text-[11px]">
+        <span>5G</span>
+        <span class="font-mono text-[10px]">99%</span>
+      </div>
+    </div>
+
+    <!-- 顶栏与状态区 -->
+    <header class="px-4 pt-1 pb-1.5 relative z-10">
+      <div class="flex items-center justify-between mb-2">
+        <div class="bg-black/45 backdrop-blur-md px-3 py-0.5 rounded-full border border-white/20 text-white">
+          <span class="text-[12px] font-bold">2026年10月 · 日出排班</span>
+        </div>
+        
+        <!-- 布局模式切换 -->
+        <div class="flex bg-black/45 backdrop-blur-md p-0.5 rounded-full border border-white/20 text-white text-[11px] font-medium">
+          <button id="tabStdView" onclick="switchLayout('standard')" class="px-2.5 py-0.5 rounded-full bg-white text-black font-bold spring-trans">标准视窗</button>
+          <button id="tabFullMonth" onclick="switchLayout('fullmonth')" class="px-2.5 py-0.5 rounded-full text-white/80 hover:text-white spring-trans">整月全景</button>
+        </div>
+      </div>
+
+      <!-- ★★★ 核心新功能：排班显示视角过滤胶囊 (单人/双人/同休) ★★★ -->
+      <div class="p-1 rounded-2xl custom-card shadow-sm flex items-center justify-between text-xs mb-2 spring-trans">
+        <span class="text-[10px] text-gray-500 font-bold pl-2">透视维度:</span>
+        <div class="flex items-center gap-1">
+          <button id="filterBoth" onclick="setFilter('both')" class="filter-btn px-2 py-0.5 rounded-xl bg-black text-white text-[10px] font-bold spring-trans">👥 双人并列</button>
+          <button id="filterMe" onclick="setFilter('me')" class="filter-btn px-2 py-0.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-[10px] font-medium spring-trans">👦 仅看我</button>
+          <button id="filterPartner" onclick="setFilter('partner')" class="filter-btn px-2 py-0.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-[10px] font-medium spring-trans">👧 仅看TA</button>
+          <button id="filterTogether" onclick="setFilter('together')" class="filter-btn px-2 py-0.5 rounded-xl bg-gray-100 hover:bg-gray-200 text-rose-600 text-[10px] font-bold spring-trans">☀️ 仅看同休</button>
+        </div>
+      </div>
+
+      <!-- 双人协同状态条 -->
+      <div class="custom-card rounded-2xl p-2 shadow-sm spring-trans">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <div class="w-7 h-7 rounded-full bg-sunrise-500 text-white flex items-center justify-center font-bold text-xs shadow-sm ring-2 ring-white">王</div>
+            <div>
+              <div class="text-[11px] font-bold text-gray-900 leading-tight">小王 (我)</div>
+              <div class="text-[10px] text-sunrise-500 font-semibold">今日: 白班</div>
+            </div>
+          </div>
+
+          <div class="text-center px-2 py-0.5 rounded-lg bg-together-bg border border-together-border">
+            <div class="text-[8px] text-together-text uppercase tracking-widest font-extrabold">下次同休</div>
+            <div class="text-[10px] font-bold text-together-text font-mono">周五 · 2天后</div>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <div class="text-right">
+              <div class="text-[11px] font-bold text-gray-900 leading-tight">小李 (搭档)</div>
+              <div class="text-[10px] text-tealpartner-500 font-semibold">今日: 大夜班</div>
+            </div>
+            <div class="w-7 h-7 rounded-full bg-tealpartner-500 text-white flex items-center justify-center font-bold text-xs shadow-sm ring-2 ring-white">李</div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- 主展示区 1：标准视窗 (月历正常比例 + 个人工作备注抽屉) -->
+    <main id="standardLayout" class="flex-1 px-4 overflow-y-auto relative z-10 pb-3">
+      <!-- 月历卡片 -->
+      <div class="custom-card rounded-3xl p-3 shadow-lg spring-trans">
+        <!-- 星期表头 -->
+        <div class="grid grid-cols-7 text-center text-[10px] font-semibold text-gray-400 mb-1.5 font-mono">
+          <span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span class="text-sunrise-500">六</span><span class="text-sunrise-500">日</span>
+        </div>
+
+        <!-- 48px 标准经典黄金比例单元格 -->
+        <div class="grid grid-cols-7 gap-1 text-center text-xs" id="calendarGrid">
+          <!-- 上月末 28, 29, 30 -->
+          <div class="cal-cell rounded-xl bg-gray-100/40 opacity-40">
+            <span class="text-[9px] font-mono text-gray-400 text-left pl-0.5">28</span>
+            <div class="shift-badges flex gap-0.5">
+              <span class="badge-a flex-1 text-[8px] py-0.2 bg-gray-200 text-gray-600 rounded">夜</span>
+              <span class="badge-b flex-1 text-[8px] py-0.2 bg-gray-200 text-gray-600 rounded">白</span>
+            </div>
+          </div>
+          <div class="cal-cell rounded-xl bg-gray-100/40 opacity-40">
+            <span class="text-[9px] font-mono text-gray-400 text-left pl-0.5">29</span>
+            <div class="shift-badges flex gap-0.5">
+              <span class="badge-a flex-1 text-[8px] py-0.2 bg-gray-200 text-gray-600 rounded">休</span>
+              <span class="badge-b flex-1 text-[8px] py-0.2 bg-gray-200 text-gray-600 rounded">夜</span>
+            </div>
+          </div>
+          <div class="cal-cell rounded-xl bg-gray-100/40 opacity-40">
+            <span class="text-[9px] font-mono text-gray-400 text-left pl-0.5">30</span>
+            <div class="shift-badges flex gap-0.5">
+              <span class="badge-a flex-1 text-[8px] py-0.2 bg-gray-200 text-gray-600 rounded">白</span>
+              <span class="badge-b flex-1 text-[8px] py-0.2 bg-gray-200 text-gray-600 rounded">休</span>
+            </div>
+          </div>
+
+          <!-- 10月1日：国庆假 -->
+          <div class="cal-cell day-item rounded-xl bg-white/80 border border-gray-100 cursor-pointer spring-trans" data-together="false">
+            <div class="flex justify-between items-center px-0.5">
+              <span class="text-[10px] font-mono font-bold text-gray-800">1</span>
+              <span class="text-[7px] bg-holiday-restBg text-holiday-restText px-0.5 rounded font-bold">休</span>
+            </div>
+            <div class="shift-badges flex gap-0.5">
+              <span class="badge-a flex-1 text-[8px] font-medium bg-sunrise-badge text-sunrise-text rounded">早</span>
+              <span class="badge-b flex-1 text-[8px] font-medium bg-tealpartner-badge text-tealpartner-text rounded">夜</span>
+            </div>
+          </div>
+
+          <!-- 10月2日：☀️ 双方同休 -->
+          <div class="cal-cell day-item rounded-xl border-2 border-rose-400 bg-together-bg cursor-pointer spring-trans shadow-sm" data-together="true">
+            <div class="flex justify-between items-center px-0.5">
+              <span class="text-[10px] font-mono font-bold text-together-text">2</span>
+              <span class="text-[8px] text-rose-500 font-bold">☀️</span>
+            </div>
+            <div class="shift-badges">
+              <div class="bg-white/95 text-rose-600 font-bold text-[8px] py-0.5 rounded">同休</div>
+            </div>
+          </div>
+
+          <!-- 10月3日：同休 -->
+          <div class="cal-cell day-item rounded-xl border border-rose-300 bg-together-bg/80 cursor-pointer spring-trans" data-together="true">
+            <div class="flex justify-between items-center px-0.5">
+              <span class="text-[10px] font-mono font-bold text-together-text">3</span>
+              <span class="text-[8px] text-rose-500 font-bold">☀️</span>
+            </div>
+            <div class="shift-badges">
+              <div class="bg-white/95 text-rose-600 font-bold text-[8px] py-0.5 rounded">同休</div>
+            </div>
+          </div>
+
+          <!-- 10月4日：今日 -->
+          <div class="cal-cell day-item rounded-xl ring-2 ring-black bg-white cursor-pointer spring-trans shadow-md" data-together="false">
+            <div class="flex justify-between items-center px-0.5">
+              <span class="text-[10px] font-mono font-extrabold text-black">4</span>
+              <span class="text-[7px] bg-black text-white px-1 rounded font-bold">今</span>
+            </div>
+            <div class="shift-badges flex gap-0.5">
+              <span class="badge-a flex-1 text-[8px] font-bold bg-sunrise-badge text-sunrise-text rounded">白</span>
+              <span class="badge-b flex-1 text-[8px] font-bold bg-tealpartner-badge text-tealpartner-text rounded">夜</span>
+            </div>
+          </div>
+
+          <!-- 10月5日 -->
+          <div class="cal-cell day-item rounded-xl bg-white/70 border border-transparent cursor-pointer spring-trans" data-together="false">
+            <div class="flex justify-between items-center px-0.5">
+              <span class="text-[10px] font-mono text-gray-700">5</span>
+              <span class="text-[7px] bg-holiday-restBg text-holiday-restText px-0.5 rounded font-bold">休</span>
+            </div>
+            <div class="shift-badges flex gap-0.5">
+              <span class="badge-a flex-1 text-[8px] bg-sunrise-badge text-sunrise-text rounded">白</span>
+              <span class="badge-b flex-1 text-[8px] bg-gray-100 text-gray-500 rounded">休</span>
+            </div>
+          </div>
+
+          <!-- 10月6日 -->
+          <div class="cal-cell day-item rounded-xl bg-white/70 border border-transparent cursor-pointer spring-trans" data-together="false">
+            <div class="flex justify-between items-center px-0.5">
+              <span class="text-[10px] font-mono text-gray-700">6</span>
+              <span class="text-[7px] bg-holiday-restBg text-holiday-restText px-0.5 rounded font-bold">休</span>
+            </div>
+            <div class="shift-badges flex gap-0.5">
+              <span class="badge-a flex-1 text-[8px] bg-gray-100 text-gray-500 rounded">休</span>
+              <span class="badge-b flex-1 text-[8px] bg-tealpartner-badge text-tealpartner-text rounded">早</span>
+            </div>
+          </div>
+
+          <!-- 10月7日 -->
+          <div class="cal-cell day-item rounded-xl bg-white/70 border border-transparent cursor-pointer spring-trans" data-together="false">
+            <div class="flex justify-between items-center px-0.5">
+              <span class="text-[10px] font-mono text-gray-700">7</span>
+              <span class="text-[7px] bg-holiday-restBg text-holiday-restText px-0.5 rounded font-bold">休</span>
+            </div>
+            <div class="shift-badges flex gap-0.5">
+              <span class="badge-a flex-1 text-[8px] bg-sunrise-badge text-sunrise-text rounded">早</span>
+              <span class="badge-b flex-1 text-[8px] bg-tealpartner-badge text-tealpartner-text rounded">中</span>
+            </div>
+          </div>
+
+          <!-- 10月8日：调休上班 -->
+          <div class="cal-cell day-item rounded-xl bg-amber-50/80 border border-amber-200 cursor-pointer spring-trans" data-together="false">
+            <div class="flex justify-between items-center px-0.5">
+              <span class="text-[10px] font-mono font-medium text-gray-800">8</span>
+              <span class="text-[7px] bg-holiday-workBg text-holiday-workText px-0.5 rounded font-bold">班</span>
+            </div>
+            <div class="shift-badges flex gap-0.5">
+              <span class="badge-a flex-1 text-[8px] font-bold bg-sunrise-badge text-sunrise-text rounded">补</span>
+              <span class="badge-b flex-1 text-[8px] font-bold bg-tealpartner-badge text-tealpartner-text rounded">补</span>
+            </div>
+          </div>
+
+          <!-- 10月9日：☀️ 同休 -->
+          <div class="cal-cell day-item rounded-xl border-2 border-rose-400 bg-together-bg cursor-pointer spring-trans shadow-sm" data-together="true">
+            <div class="flex justify-between items-center px-0.5">
+              <span class="text-[10px] font-mono font-bold text-together-text">9</span>
+              <span class="text-[8px] text-rose-500 font-bold">☀️</span>
+            </div>
+            <div class="shift-badges">
+              <div class="bg-white/95 text-rose-600 font-bold text-[8px] py-0.5 rounded">同休</div>
+            </div>
+          </div>
+
+          <!-- 10月10日 -->
+          <div class="cal-cell day-item rounded-xl bg-white/70 border border-gray-100 cursor-pointer spring-trans" data-together="false">
+            <div class="flex justify-between items-center px-0.5">
+              <span class="text-[10px] font-mono text-gray-700">10</span>
+              <span class="text-[7px] bg-holiday-workBg text-holiday-workText px-0.5 rounded font-bold">班</span>
+            </div>
+            <div class="shift-badges flex gap-0.5">
+              <span class="badge-a flex-1 text-[8px] bg-sunrise-badge text-sunrise-text rounded">白</span>
+              <span class="badge-b flex-1 text-[8px] bg-gray-100 text-gray-500 rounded">休</span>
+            </div>
+          </div>
+
+          <!-- 10月11日 -->
+          <div class="cal-cell day-item rounded-xl bg-white/70 border border-transparent cursor-pointer spring-trans" data-together="false">
+            <div class="flex justify-between items-center px-0.5">
+              <span class="text-[10px] font-mono text-gray-700">11</span>
+            </div>
+            <div class="shift-badges flex gap-0.5">
+              <span class="badge-a flex-1 text-[8px] bg-gray-100 text-gray-500 rounded">休</span>
+              <span class="badge-b flex-1 text-[8px] bg-tealpartner-badge text-tealpartner-text rounded">早</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ★★★ 核心新功能：今日详情抽屉（新增【个人工作备注】与【交班便签】分离） ★★★ -->
+      <div class="mt-2.5 custom-card rounded-3xl p-3 shadow-md spring-trans">
+        <div class="flex items-center justify-between pb-2 border-b border-gray-100">
+          <div>
+            <div class="flex items-center gap-1.5">
+              <span class="font-bold text-gray-900 text-xs">今日 · 10月4日 星期日</span>
+              <span class="text-[9px] px-1.5 py-0.5 bg-amber-50 text-amber-700 rounded-full font-bold border border-amber-200">错峰当值</span>
+            </div>
+            <p class="text-[10px] text-gray-500 mt-0.5">小王白班 (08:30) · 小李大夜班 (20:00)</p>
+          </div>
+          <span class="text-[10px] text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full font-medium">⏰ 动态闹钟</span>
+        </div>
+
+        <!-- 1. 【新增】个人工作专属备注 (Personal Work Note) -->
+        <div class="mt-2.5 p-2.5 rounded-2xl bg-amber-50/60 border border-amber-200/70">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-xs font-bold text-amber-900 flex items-center gap-1">
+              <span>💼</span> 我的今日工作备注 (个人专属)
+            </span>
+            <span class="text-[9px] text-amber-700 bg-amber-100/80 px-1.5 py-0.5 rounded font-mono">3项任务</span>
+          </div>
+          
+          <!-- 任务待办清单 -->
+          <div class="flex flex-col gap-1 text-[11px]">
+            <label class="flex items-center gap-1.5 text-gray-800 cursor-pointer">
+              <input type="checkbox" checked class="rounded text-sunrise-500 accent-sunrise-500">
+              <span class="line-through text-gray-400">08:45 与早班张医生交接3床重症病历</span>
+            </label>
+            <label class="flex items-center gap-1.5 text-gray-800 cursor-pointer">
+              <input type="checkbox" class="rounded text-sunrise-500 accent-sunrise-500">
+              <span class="font-medium text-gray-700">14:00 车间2号流水线设备巡检与登记</span>
+            </label>
+            <label class="flex items-center gap-1.5 text-gray-800 cursor-pointer">
+              <input type="checkbox" class="rounded text-sunrise-500 accent-sunrise-500">
+              <span class="font-medium text-gray-700">下班前录入ERP系统出勤与物料工时表</span>
+            </label>
+          </div>
+
+          <!-- 快速追加备注输入框 -->
+          <div class="mt-2 flex items-center gap-1">
+            <input type="text" placeholder="+ 添加今日工作备忘/待办..." class="flex-1 text-[10px] px-2 py-1 bg-white rounded-lg border border-amber-200 focus:outline-none focus:ring-1 focus:ring-sunrise-500">
+            <button class="px-2 py-1 bg-amber-800 text-white text-[10px] rounded-lg font-bold">添加</button>
+          </div>
+        </div>
+
+        <!-- 2. 双人共享交班便签 (Shared Memo) -->
+        <div class="mt-2 p-2 rounded-xl bg-gray-50 border border-gray-100 flex items-start gap-1.5">
+          <span class="text-xs">💬</span>
+          <div class="flex-1 text-xs">
+            <div class="flex items-center justify-between">
+              <span class="font-semibold text-gray-700 text-[11px]">双人留言板 (双方可见)</span>
+              <span class="text-[9px] text-gray-400">12分钟前</span>
+            </div>
+            <p class="text-[11px] text-gray-500 mt-0.5 leading-tight">“小李出门前保温杯已泡好菊花茶放玄关了，下班早点回来❤️”</p>
+          </div>
+        </div>
+
+      </div>
+    </main>
+
+    <!-- 主展示区 2：整月全景透视 (保持标准比例，下方承接双人协同速报) -->
+    <main id="fullMonthLayout" class="hidden flex-1 px-4 overflow-y-auto relative z-10 pb-3">
+      <div class="custom-card rounded-3xl p-3 shadow-lg spring-trans">
+        <div class="flex items-center justify-between pb-1.5 mb-1.5 border-b border-gray-100">
+          <span class="font-bold text-xs text-gray-900 flex items-center gap-1">
+            <span>📅</span> 10月整月排班全景 (31天全貌)
+          </span>
+          <span class="text-[10px] text-together-text font-bold bg-together-bg px-2 py-0.5 rounded-full border border-together-border">
+            双人同休共 6 天
+          </span>
+        </div>
+
+        <div class="grid grid-cols-7 text-center text-[10px] font-semibold text-gray-400 mb-1 font-mono">
+          <span>一</span><span>二</span><span>三</span><span>四</span><span>五</span><span class="text-sunrise-500">六</span><span class="text-sunrise-500">日</span>
+        </div>
+
+        <div class="grid grid-cols-7 gap-1 text-center text-xs">
+          <div class="cal-cell rounded-lg bg-gray-100/40 opacity-40"><span class="text-[9px] font-mono text-gray-400 text-left">28</span><div class="text-[7px] text-gray-400">夜/白</div></div>
+          <div class="cal-cell rounded-lg bg-gray-100/40 opacity-40"><span class="text-[9px] font-mono text-gray-400 text-left">29</span><div class="text-[7px] text-gray-400">休/夜</div></div>
+          <div class="cal-cell rounded-lg bg-gray-100/40 opacity-40"><span class="text-[9px] font-mono text-gray-400 text-left">30</span><div class="text-[7px] text-gray-400">白/休</div></div>
+          
+          <div class="cal-cell rounded-lg bg-white/80 border border-gray-100"><div class="flex justify-between"><span class="text-[9px] font-mono font-bold">1</span><span class="text-[7px] text-red-600 font-bold">休</span></div><div class="flex gap-0.5"><span class="flex-1 text-[7px] bg-sunrise-badge text-sunrise-text rounded">早</span><span class="flex-1 text-[7px] bg-tealpartner-badge text-tealpartner-text rounded">夜</span></div></div>
+          <div class="cal-cell rounded-lg border border-rose-300 bg-together-bg"><div class="flex justify-between"><span class="text-[9px] font-mono font-bold text-together-text">2</span><span class="text-[7px]">☀️</span></div><div class="bg-white/95 text-rose-600 font-bold text-[7px] py-0.5 rounded">同休</div></div>
+          <div class="cal-cell rounded-lg border border-rose-300 bg-together-bg"><div class="flex justify-between"><span class="text-[9px] font-mono font-bold text-together-text">3</span><span class="text-[7px]">☀️</span></div><div class="bg-white/95 text-rose-600 font-bold text-[7px] py-0.5 rounded">同休</div></div>
+          <div class="cal-cell rounded-lg ring-2 ring-black bg-white"><div class="flex justify-between"><span class="text-[9px] font-mono font-extrabold text-black">4</span><span class="text-[7px] bg-black text-white px-0.5 rounded">今</span></div><div class="flex gap-0.5"><span class="flex-1 text-[7px] bg-sunrise-badge text-sunrise-text rounded">白</span><span class="flex-1 text-[7px] bg-tealpartner-badge text-tealpartner-text rounded">夜</span></div></div>
+
+          <div class="cal-cell rounded-lg bg-white/70"><div class="flex justify-between"><span class="text-[9px] font-mono">5</span><span class="text-[7px] text-red-500 font-bold">休</span></div><div class="text-[7px] text-gray-500">白 / 休</div></div>
+          <div class="cal-cell rounded-lg bg-white/70"><div class="flex justify-between"><span class="text-[9px] font-mono">6</span><span class="text-[7px] text-red-500 font-bold">休</span></div><div class="text-[7px] text-gray-500">休 / 早</div></div>
+          <div class="cal-cell rounded-lg bg-white/70"><div class="flex justify-between"><span class="text-[9px] font-mono">7</span><span class="text-[7px] text-red-500 font-bold">休</span></div><div class="text-[7px] text-gray-500">早 / 中</div></div>
+          <div class="cal-cell rounded-lg bg-amber-50/80 border border-amber-200"><div class="flex justify-between"><span class="text-[9px] font-mono font-bold">8</span><span class="text-[7px] text-gray-600 font-bold">班</span></div><div class="text-[7px] font-bold text-amber-800">补班</div></div>
+          <div class="cal-cell rounded-lg border border-rose-300 bg-together-bg"><div class="flex justify-between"><span class="text-[9px] font-mono font-bold text-together-text">9</span><span class="text-[7px]">☀️</span></div><div class="bg-white/95 text-rose-600 font-bold text-[7px] py-0.5 rounded">同休</div></div>
+          <div class="cal-cell rounded-lg bg-white/70"><div class="flex justify-between"><span class="text-[9px] font-mono">10</span><span class="text-[7px] text-gray-600 font-bold">班</span></div><div class="text-[7px] text-gray-500">白 / 休</div></div>
+          <div class="cal-cell rounded-lg bg-white/70"><div class="flex justify-between"><span class="text-[9px] font-mono">11</span></div><div class="text-[7px] text-gray-500">休 / 早</div></div>
+        </div>
+      </div>
+
+      <div class="mt-2.5 custom-card rounded-3xl p-3 shadow-md spring-trans">
+        <div class="flex items-center justify-between pb-1.5 border-b border-gray-100">
+          <span class="font-bold text-xs text-gray-900">✨ 10月双人协同速报</span>
+          <span class="text-[10px] text-gray-400 font-mono">考勤已核准</span>
+        </div>
+        <div class="grid grid-cols-3 gap-2 mt-2 text-center text-xs">
+          <div class="p-1.5 rounded-xl bg-together-bg border border-together-border">
+            <div class="text-[9px] text-together-text font-medium">双人同休天数</div>
+            <div class="text-sm font-bold text-together-text font-mono mt-0.5">6 天</div>
+          </div>
+          <div class="p-1.5 rounded-xl bg-sunrise-50/70 border border-sunrise-100">
+            <div class="text-[9px] text-sunrise-600 font-medium">小王出勤 / 工时</div>
+            <div class="text-sm font-bold text-sunrise-600 font-mono mt-0.5">21天 / 168h</div>
+          </div>
+          <div class="p-1.5 rounded-xl bg-tealpartner-50/70 border border-tealpartner-100">
+            <div class="text-[9px] text-tealpartner-600 font-medium">小李夜班 / 津贴</div>
+            <div class="text-sm font-bold text-tealpartner-600 font-mono mt-0.5">8次 / +640元</div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- 底部 Tab 栏 -->
+    <nav class="custom-card p-2.5 border-t backdrop-blur-xl relative z-10">
+      <div class="grid grid-cols-4 gap-1 text-center">
+        <button class="flex flex-col items-center gap-0.5 py-1 text-black font-bold">
+          <svg class="w-5 h-5 fill-current" viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20a2 2 0 002 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2z"/></svg>
+          <span class="text-[10px]">日历</span>
+        </button>
+        <button class="flex flex-col items-center gap-0.5 py-1 text-gray-500 hover:text-black">
+          <svg class="w-5 h-5 fill-none stroke-currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+          <span class="text-[10px]">排班规则</span>
+        </button>
+        <button class="flex flex-col items-center gap-0.5 py-1 text-gray-500 hover:text-black">
+          <svg class="w-5 h-5 fill-none stroke-currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+          <span class="text-[10px]">工时统计</span>
+        </button>
+        <button class="flex flex-col items-center gap-0.5 py-1 text-gray-500 hover:text-black">
+          <svg class="w-5 h-5 fill-none stroke-currentColor" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>
+          <span class="text-[10px]">我的/装扮</span>
+        </button>
+      </div>
+      <div class="w-32 h-1 bg-black/30 rounded-full mx-auto mt-2"></div>
+    </nav>
+  </div>
+
+  <script>
+    // 1. 字体动态切换
+    function setFont(fontClass) {
+      const body = document.getElementById('appBody');
+      const classes = ['font-sans-modern', 'font-wenkai', 'font-serif-elegant', 'font-cute-round', 'font-mono-tech'];
+      classes.forEach(c => body.classList.remove(c));
+      body.classList.add(fontClass);
+
+      document.querySelectorAll('.font-btn').forEach(btn => {
+        btn.classList.remove('bg-black', 'text-white');
+        btn.classList.add('bg-gray-50', 'text-gray-700');
+      });
+      event.target.classList.remove('bg-gray-50', 'text-gray-700');
+      event.target.classList.add('bg-black', 'text-white');
+    }
+
+    // 2. 透明度与虚化滑块
+    function changeOpacity(val) {
+      const opacity = val / 100;
+      document.documentElement.style.setProperty('--card-bg-opacity', opacity);
+      document.getElementById('opacityVal').textContent = `${val}%`;
+    }
+
+    function changeBlur(val) {
+      document.documentElement.style.setProperty('--card-blur', `${val}px`);
+      document.getElementById('blurVal').textContent = `${val}px`;
+    }
+
+    // 3. 布局模式切换：标准视窗 VS 整月全景
+    function switchLayout(mode) {
+      const std = document.getElementById('standardLayout');
+      const full = document.getElementById('fullMonthLayout');
+      const btnStd = document.getElementById('tabStdView');
+      const btnFull = document.getElementById('tabFullMonth');
+
+      if (mode === 'standard') {
+        std.classList.remove('hidden');
+        full.classList.add('hidden');
+        btnStd.classList.add('bg-white', 'text-black', 'font-bold');
+        btnStd.classList.remove('text-white/80');
+        btnFull.classList.remove('bg-white', 'text-black', 'font-bold');
+        btnFull.classList.add('text-white/80');
+      } else {
+        std.classList.add('hidden');
+        full.classList.remove('hidden');
+        btnFull.classList.add('bg-white', 'text-black', 'font-bold');
+        btnFull.classList.remove('text-white/80');
+        btnStd.classList.remove('bg-white', 'text-black', 'font-bold');
+        btnStd.classList.add('text-white/80');
+      }
+    }
+
+    // ★★★ 4. 单人/双人/同休排班视角过滤核心逻辑 ★★★
+    function setFilter(filterType) {
+      document.querySelectorAll('.filter-btn').forEach(b => {
+        b.classList.remove('bg-black', 'text-white');
+        b.classList.add('bg-gray-100', 'text-gray-700');
+      });
+      event.target.classList.remove('bg-gray-100', 'text-gray-700');
+      event.target.classList.add('bg-black', 'text-white');
+
+      const cells = document.querySelectorAll('.day-item');
+      cells.forEach(cell => {
+        const badgeA = cell.querySelector('.badge-a');
+        const badgeB = cell.querySelector('.badge-b');
+        const isTogether = cell.getAttribute('data-together') === 'true';
+
+        // 默认恢复显示
+        cell.style.opacity = '1';
+        cell.style.filter = 'none';
+
+        if (filterType === 'both') {
+          if (badgeA) badgeA.style.display = 'block';
+          if (badgeB) badgeB.style.display = 'block';
+        } else if (filterType === 'me') {
+          // 只显示小王
+          if (badgeA) badgeA.style.display = 'block';
+          if (badgeB) badgeB.style.display = 'none';
+        } else if (filterType === 'partner') {
+          // 只显示小李
+          if (badgeA) badgeA.style.display = 'none';
+          if (badgeB) badgeB.style.display = 'block';
+        } else if (filterType === 'together') {
+          // 仅看同休：非同休日期降低透明度降噪，突出黄金同休日
+          if (badgeA) badgeA.style.display = 'block';
+          if (badgeB) badgeB.style.display = 'block';
+          if (!isTogether) {
+            cell.style.opacity = '0.22';
+            cell.style.filter = 'grayscale(80%)';
+          }
+        }
+      });
+    }
+  </script>
+</body>
+</html>

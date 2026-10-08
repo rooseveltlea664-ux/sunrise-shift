@@ -1,0 +1,80 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+/* 字体族定义 */
+.font-modern { font-family: 'Plus Jakarta Sans', 'Noto Sans SC', sans-serif; }
+.font-wenkai { font-family: 'LXGW WenKai Screen', 'Noto Sans SC', sans-serif; }
+.font-serif { font-family: 'Noto Serif SC', serif; }
+.font-round { font-family: 'ZCOOL KuaiLe', 'Noto Sans SC', cursive, sans-serif; }
+.font-mono { font-family: 'JetBrains Mono', 'Noto Sans SC', monospace; }
+
+/* 动效系统 (Baseline UI) */
+.motion-press {
+  transition: transform 0.15s cubic-bezier(0.2, 0, 0, 1), opacity 0.15s ease-out;
+}
+.motion-press:active {
+  transform: scale(0.97);
+}
+
+.cal-cell {
+  min-height: 64px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 4px;
+}
+
+.cal-cell-bg {
+  background-color: rgba(255, 255, 255, var(--card-bg-opacity, 0.94));
+  backdrop-filter: blur(var(--card-blur, 16px));
+  -webkit-backdrop-filter: blur(var(--card-blur, 16px));
+}
+html.dark .cal-cell-bg {
+  background-color: rgba(24, 24, 27, var(--card-bg-opacity, 0.94));
+  backdrop-filter: blur(var(--card-blur, 16px));
+  -webkit-backdrop-filter: blur(var(--card-blur, 16px));
+}
+
+.liquid-card {
+  background-color: rgba(255, 255, 255, var(--card-bg-opacity, 0.94));
+  backdrop-filter: blur(var(--card-blur, 16px));
+  -webkit-backdrop-filter: blur(var(--card-blur, 16px));
+}
+html.dark .liquid-card {
+  background-color: rgba(24, 24, 27, var(--card-bg-opacity, 0.94));
+  backdrop-filter: blur(var(--card-blur, 16px));
+  -webkit-backdrop-filter: blur(var(--card-blur, 16px));
+}
+
+html.dark body {
+  background-color: #09090b !important;
+}
+
+/* 文本反色 */
+html.dark .text-gray-900 { color: #f4f4f5 !important; }
+html.dark .text-gray-800 { color: #e4e4e7 !important; }
+html.dark .text-gray-700 { color: #d4d4d8 !important; }
+html.dark .text-gray-600 { color: #a1a1aa !important; }
+html.dark .text-gray-500 { color: #71717a !important; }
+html.dark .text-gray-400 { color: #52525b !important; }
+html.dark .text-black { color: #ffffff !important; }
+html.dark .text-white { color: #18181b !important; }
+
+/* 背景反色 */
+html.dark .bg-gray-50, html.dark [class*="bg-gray-50/"] { background-color: #1f1f22 !important; }
+html.dark .bg-gray-100, html.dark [class*="bg-gray-100/"] { background-color: #27272a !important; }
+html.dark .bg-white { background-color: #18181b !important; }
+html.dark [class*="bg-white/"] { background-color: rgba(24, 24, 27, 0.7) !important; }
+html.dark .bg-black { background-color: #ffffff !important; color: #000000 !important; }
+
+/* 边框反色 */
+html.dark .border-gray-200, html.dark .border-gray-100 { border-color: #3f3f46 !important; }
+html.dark .border-black { border-color: #ffffff !important; }
+
+
