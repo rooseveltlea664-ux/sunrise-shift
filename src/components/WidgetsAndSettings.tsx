@@ -126,11 +126,16 @@ export const WidgetsAndSettings: React.FC<Props> = ({
                   }
                   setIsSyncing(true);
                   const code = Math.random().toString(36).substring(2, 8).toUpperCase();
-                  setSyncRoomCode(code);
-                  setSyncCode(code);
-                  await pushToCloud(code); // push current data
+                  const success = await pushToCloud(code);
                   setIsSyncing(false);
-                  alert(`✅ 您的专属配对码是：【${code}】\n\n请让您的伴侣在他的手机上的此界面，点击“输入连接码”并填入此码，即可完成账号绑定。`);
+                  
+                  if (success) {
+                    setSyncRoomCode(code);
+                    setSyncCode(code);
+                    alert(`✅ 您的专属配对码是：【${code}】\n\n请让您的伴侣在他的手机上的此界面，点击“输入连接码”并填入此码，即可完成账号绑定。`);
+                  } else {
+                    alert('❌ 生成配对码失败，请检查网络或联系开发者（可能是云端数据库 RLS 权限拦截了写入）。');
+                  }
                 }}
                 disabled={isSyncing}
                 className="flex-1 py-1.5 bg-blue-500 text-white rounded-lg text-[11px] font-bold shadow-md motion-press disabled:opacity-50"
