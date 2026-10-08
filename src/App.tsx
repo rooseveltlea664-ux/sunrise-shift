@@ -118,6 +118,11 @@ export const App: React.FC = () => {
       Preferences.set({ key: 'sunrise_bg_opacity', value: bgOpacity.toString() });
       Preferences.set({ key: 'sunrise_bg_blur', value: bgBlur.toString() });
     }, 500);
+
+    // 强行注入全局 CSS 变量，确保即使是 fixed 弹窗和底栏也能正确继承
+    document.documentElement.style.setProperty('--card-bg-opacity', (bgOpacity / 100).toString());
+    document.documentElement.style.setProperty('--card-blur', `${bgBlur}px`);
+
     return () => clearTimeout(timer);
   }, [bgOpacity, bgBlur]);
 

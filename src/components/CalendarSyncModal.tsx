@@ -148,7 +148,7 @@ export const CalendarSyncModal: React.FC<Props> = ({ isOpen, onClose, userNames,
             exit={{ opacity: 0, scale: 0.95, y: 15 }}
             transition={{ duration: 0.25, ease: 'easeOut' }}
             style={{ willChange: 'transform, opacity' }}
-            className="w-full max-w-sm liquid-card rounded-3xl p-5 shadow-2xl relative z-10"
+            className="w-full max-w-sm bg-white/95 dark:bg-zinc-900/95 rounded-3xl p-5 shadow-2xl relative z-10"
           >
             <motion.button
               whileTap={{ scale: 0.85 }}
