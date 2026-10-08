@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { DayScheduleRecord, ShiftDefinition, TaskItem } from '../types/shift';
-import { Briefcase, MessageSquare, Bell, Plus, Heart } from 'lucide-react';
+import { Briefcase, MessageSquare, Bell, Plus, Heart, Trash2 } from 'lucide-react';
 
 interface Props {
   dateStr: string;
@@ -43,6 +43,13 @@ export const SelectedDaySheet: React.FC<Props> = ({
     onUpdateRecord({ ...currentRecord, personalNotes: updatedTasks });
   };
 
+  const handleDeleteTask = (taskId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    const updatedTasks = currentRecord.personalNotes.filter(t => t.id !== taskId);
+    onUpdateRecord({ ...currentRecord, personalNotes: updatedTasks });
+  };
+
   const handleAddTask = () => {
     if (!newText.trim()) return;
     const newTask: TaskItem = {
@@ -57,6 +64,7 @@ export const SelectedDaySheet: React.FC<Props> = ({
     });
     setNewText('');
   };
+
 
   const handleToggleAlarm = () => {
     onUpdateRecord({
@@ -126,21 +134,30 @@ export const SelectedDaySheet: React.FC<Props> = ({
                 exit={{ opacity: 0, height: 0 }}
                 whileTap={{ scale: 0.98 }}
                 transition={{ duration: 0.2 }}
-                className="flex items-center gap-1.5 text-gray-800 cursor-pointer overflow-hidden"
+                className="flex items-center justify-between w-full text-gray-800 cursor-pointer overflow-hidden group"
               >
-                <input
-                  type="checkbox"
-                  checked={task.completed}
-                  onChange={() => handleToggleTask(task.id)}
-                  className="rounded text-sunrise-500 accent-sunrise-500"
-                />
-                <span
-                  className={`transition-all duration-300 ${
-                    task.completed ? 'line-through text-gray-400' : 'font-medium text-gray-700'
-                  }`}
+                <div className="flex items-center gap-1.5 flex-1">
+                  <input
+                    type="checkbox"
+                    checked={task.completed}
+                    onChange={() => handleToggleTask(task.id)}
+                    className="rounded text-sunrise-500 accent-sunrise-500"
+                  />
+                  <span
+                    className={`transition-all duration-300 ${
+                      task.completed ? 'line-through text-gray-400' : 'font-medium text-gray-700'
+                    }`}
+                  >
+                    {task.text}
+                  </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={(e) => handleDeleteTask(task.id, e)}
+                  className="p-1 rounded-md text-gray-300 hover:text-red-500 hover:bg-red-50 transition-colors"
                 >
-                  {task.text}
-                </span>
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
               </motion.label>
             ))}
             </AnimatePresence>
