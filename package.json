@@ -1,7 +1,7 @@
 {
   "name": "sunrise-shift",
   "private": true,
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "日出排班 (Sunrise Shift) - 专为双人打造的极简流体液态玻璃排班系统 App (iOS & Android)",
   "type": "module",
   "scripts": {
